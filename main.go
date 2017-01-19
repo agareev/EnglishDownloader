@@ -60,11 +60,11 @@ func saveObject(b []byte, f string) {
 func createDirIfNotExist() string {
 
 	t := time.Now()
-	path := t.Format("2006-01-02")
+	path := "files/" + t.Format("2006-01-02") + "/"
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		os.Mkdir(path, 0755)
 	}
-	return path + "/"
+	return path
 }
 
 func main() {
