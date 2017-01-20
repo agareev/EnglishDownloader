@@ -22,9 +22,26 @@
       file:
         path: "{{item}}"
         state: directory
+        owner: "{{user}}"
+        force: yes
       with_items:
        - "{{remotePath}}"
        - "{{remotePath}}/files"
+       - "{{remotePath}}/themes"
+      tags:
+        push
+
+    - name: push header/footer template
+      file:
+        src: "themes/{{item}}"
+        dest: "{{remotePath}}/themes/{{item}}"
+        owner: "{{user}}"
+        state: file
+      with_items:
+       - header.html
+       - footer.html
+      tags:
+        push
 
     - name: push binary file
       copy:
