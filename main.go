@@ -13,6 +13,7 @@ import (
 type requestFile struct {
 	URL      string
 	Filename string
+	SubPath  string
 }
 
 type responseFile struct {
@@ -54,11 +55,9 @@ func saveObject(b []byte, f string) {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("DONE")
 }
 
-func createDirIfNotExist() string {
-
+func path() string {
 	t := time.Now()
 	path := "files/" + t.Format("2006-01-02") + "/"
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -67,34 +66,68 @@ func createDirIfNotExist() string {
 	return path
 }
 
+func fileExist(path string) bool {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
 func main() {
 	longurl := "https://cloud-api.yandex.net:443/v1/disk/public/resources/download?public_key=DhLa7f6nRVrD8AZj9EGmFkyE8goTvQr0vPDb6WsdgtQ%3D&path=%2Fhomework%2F"
 	allFiles := []requestFile{
 		{longurl + "vocabulary%2Fru-en.html",
-			"ru-en.html"},
+			"ru-en.html", ""},
 		{longurl + "vocabulary%2Fen-ru.html",
-			"en-ru.html"},
+			"en-ru.html", ""},
 		{longurl + "homework-analysis%2FYuliya.pdf",
-			"Yuliya.pdf"},
+			"Yuliya.pdf", ""},
 		{longurl + "homework-analysis%2FAydar.pdf",
-			"Aydar.pdf"},
+			"Aydar.pdf", ""},
 		{longurl + "irregular-verbs%2Ffollow-and-click.html",
-			"follow-and-click.html"},
+			"follow-and-click.html", ""},
 		{longurl + "irregular-verbs%2Forder.pdf",
-			"order.pdf"},
+			"order.pdf", ""},
 		{longurl + "irregular-verbs%2Fpractice-and-check.html",
-			"practice-and-check.html"},
+			"practice-and-check.html", ""},
 		{longurl + "irregular-verbs%2Fwords.mp3",
-			"words.mp3"},
+			"words.mp3", ""},
+		{longurl + "exercises.jpg",
+			"exercises.jpg", ""},
+		{longurl + "pronunciation%2FAydar%2Fconfusable.pdf",
+			"confusable.pdf", "YES"},
+		{longurl + "pronunciation%2FAydar%2Ffollow-and-click.html",
+			"follow-and-click.html", "YES"},
+		{longurl + "pronunciation%2FAydar%2Fn-back.mp3",
+			"n-back.mp3", "YES"},
+		{longurl + "pronunciation%2FAydar%2Fpractice-and-check.html",
+			"practice-and-check.html", "YES"},
+		{longurl + "pronunciation%2FAydar%2Fpronunciation.pdf",
+			"pronunciation.pdf", "YES"},
+		{longurl + "pronunciation%2FAydar%2Fsounds.mp3",
+			"sounds.mp3", "YES"},
+		{longurl + "pronunciation%2FAydar%2Fwords.mp3",
+			"words.mp3", "YES"},
 	}
 
 	for _, o := range allFiles {
-		s, err := getObject(o)
-		if err != nil {
-			log.Println(err)
+		if fileExist(path()+o.Filename) == false {
+			s, err := getObject(o)
+			if err != nil {
+				log.Println(err)
+			} else {
+				if o.SubPath == "" {
+					saveObject(s, path()+o.Filename)
+					log.Println("file " + o.Filename + " downlowaded")
+				} else {
+					// Сделать нормальную проверку и разделение по директориям
+					os.Mkdir(path()+"Aydar/", 0755)
+					saveObject(s, path()+"Aydar/"+o.Filename)
+					log.Println("file " + o.Filename + " downlowaded")
+				}
+			}
 		} else {
-			path2save := createDirIfNotExist()
-			saveObject(s, path2save+o.Filename)
+			log.Println("file " + o.Filename + " is exist")
 		}
 	}
 }
