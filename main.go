@@ -26,7 +26,7 @@ type responseFile struct {
 func getAllContents(URL string) []byte {
 	response, err := http.Get(URL)
 	if err != nil {
-		log.Println(err)
+		log.Printf("%s", err)
 		os.Exit(1)
 	} else {
 		defer response.Body.Close()
@@ -73,6 +73,23 @@ func fileExist(path string) bool {
 	return true
 }
 
+func save2Path(subpath, filename string, s []byte) {
+	switch subpath {
+	case "Aydar":
+		os.Mkdir(path()+"Aydar/", 0755)
+		saveObject(s, path()+"Aydar/"+filename)
+		log.Println("file " + filename + " downlowaded (for Aydar)")
+	case "Yulia":
+		os.Mkdir(path()+"Yulia/", 0755)
+		saveObject(s, path()+"Yulia/"+filename)
+		log.Println("file " + filename + " downlowaded (for Yulia)")
+	default:
+		saveObject(s, path()+filename)
+		log.Println("file " + filename + " downlowaded")
+	}
+
+}
+
 func main() {
 	longurl := "https://cloud-api.yandex.net:443/v1/disk/public/resources/download?public_key=DhLa7f6nRVrD8AZj9EGmFkyE8goTvQr0vPDb6WsdgtQ%3D&path=%2Fhomework%2F"
 	allFiles := []requestFile{
@@ -95,36 +112,44 @@ func main() {
 		{longurl + "exercises.jpg",
 			"exercises.jpg", ""},
 		{longurl + "pronunciation%2FAydar%2Fconfusable.pdf",
-			"confusable.pdf", "YES"},
+			"confusable.pdf", "Aydar"},
 		{longurl + "pronunciation%2FAydar%2Ffollow-and-click.html",
-			"follow-and-click.html", "YES"},
+			"follow-and-click.html", "Aydar"},
 		{longurl + "pronunciation%2FAydar%2Fn-back.mp3",
-			"n-back.mp3", "YES"},
+			"n-back.mp3", "Aydar"},
 		{longurl + "pronunciation%2FAydar%2Fpractice-and-check.html",
-			"practice-and-check.html", "YES"},
+			"practice-and-check.html", "Aydar"},
 		{longurl + "pronunciation%2FAydar%2Fpronunciation.pdf",
-			"pronunciation.pdf", "YES"},
+			"pronunciation.pdf", "Aydar"},
 		{longurl + "pronunciation%2FAydar%2Fsounds.mp3",
-			"sounds.mp3", "YES"},
+			"sounds.mp3", "Aydar"},
 		{longurl + "pronunciation%2FAydar%2Fwords.mp3",
-			"words.mp3", "YES"},
+			"words.mp3", "Aydar"},
+		//===========================
+		{longurl + "pronunciation%2FYulia%2Fconfusable.pdf",
+			"confusable.pdf", "Yulia"},
+		{longurl + "pronunciation%2FYulia%2Ffollow-and-click.html",
+			"follow-and-click.html", "Yulia"},
+		{longurl + "pronunciation%2FYulia%2Fn-back.mp3",
+			"n-back.mp3", "Yulia"},
+		{longurl + "pronunciation%2FYulia%2Fpractice-and-check.html",
+			"practice-and-check.html", "Yulia"},
+		{longurl + "pronunciation%2FYulia%2Fpronunciation.pdf",
+			"pronunciation.pdf", "Yulia"},
+		{longurl + "pronunciation%2FYulia%2Fsounds.mp3",
+			"sounds.mp3", "Yulia"},
+		{longurl + "pronunciation%2FYulia%2Fwords.mp3",
+			"words.mp3", "Yulia"},
 	}
 
+	// TODO rewrite as multithread func
 	for _, o := range allFiles {
 		if fileExist(path()+o.Filename) == false {
 			s, err := getObject(o)
 			if err != nil {
 				log.Println(err)
 			} else {
-				if o.SubPath == "" {
-					saveObject(s, path()+o.Filename)
-					log.Println("file " + o.Filename + " downlowaded")
-				} else {
-					// Сделать нормальную проверку и разделение по директориям
-					os.Mkdir(path()+"Aydar/", 0755)
-					saveObject(s, path()+"Aydar/"+o.Filename)
-					log.Println("file " + o.Filename + " downlowaded")
-				}
+				go save2Path(o.SubPath, o.Filename, s)
 			}
 		} else {
 			log.Println("file " + o.Filename + " is exist")
