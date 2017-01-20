@@ -23,7 +23,6 @@
         path: "{{item}}"
         state: directory
         owner: "{{user}}"
-        force: yes
       with_items:
        - "{{remotePath}}"
        - "{{remotePath}}/files"
@@ -32,11 +31,11 @@
         push
 
     - name: push header/footer template
-      file:
+      copy:
         src: "themes/{{item}}"
         dest: "{{remotePath}}/themes/{{item}}"
         owner: "{{user}}"
-        state: file
+        force: yes
       with_items:
        - header.html
        - footer.html
