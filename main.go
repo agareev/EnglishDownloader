@@ -75,7 +75,6 @@ func fileExist(path string) bool {
 }
 
 func save2Path(r requestFile, wg *sync.WaitGroup) {
-	log.Println(r.Filename)
 	s, err := getObject(r)
 	if err != nil {
 		log.Println(err)

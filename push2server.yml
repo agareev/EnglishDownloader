@@ -1,0 +1,54 @@
+---
+
+- hosts: all
+  remote_user: root
+  vars:
+    buildTarget: "EnglishDownloader"
+    remotePath: "/srv/sites/EnglishArchive"
+    user: "www-data"
+
+  tasks:
+    - name: build binary
+      command: go build -o "{{buildTarget}}"
+      register: buildTime
+      delegate_to: 127.0.0.1
+      environment:
+        GOOS: "linux"
+        GOARCH: "amd64"
+      tags:
+        build
+
+    - name: create directories
+      file:
+        path: "{{item}}"
+        state: directory
+      with_items:
+       - "{{remotePath}}"
+       - "{{remotePath}}/files"
+
+    - name: push binary file
+      copy:
+        src: "{{buildTarget}}"
+        dest: "{{ remotePath }}/{{buildTarget}}"
+        owner: "{{ user }}"
+        force: yes
+        mode: 755
+      tags:
+        push
+
+    - name: remove local build
+      file:
+        path: "{{buildTarget}}"
+        state: absent
+      delegate_to: 127.0.0.1
+      tags:
+        build
+
+    - name: Add crontab job "{{remotePath}}"
+      cron:
+        name: "Save my favorite homework"
+        job: "cd {{remotePath}} && ./{{buildTarget}}"
+        user: "{{ user }}"
+        special_time: daily
+      tags:
+        push
