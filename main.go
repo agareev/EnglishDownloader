@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -73,21 +74,27 @@ func fileExist(path string) bool {
 	return true
 }
 
-func save2Path(subpath, filename string, s []byte) {
-	switch subpath {
-	case "Aydar":
-		os.Mkdir(path()+"Aydar/", 0755)
-		saveObject(s, path()+"Aydar/"+filename)
-		log.Println("file " + filename + " downlowaded (for Aydar)")
-	case "Yuliya":
-		os.Mkdir(path()+"Yuliya/", 0755)
-		saveObject(s, path()+"Yuliya/"+filename)
-		log.Println("file " + filename + " downlowaded (for Yuliya)")
-	default:
-		saveObject(s, path()+filename)
-		log.Println("file " + filename + " downlowaded")
+func save2Path(r requestFile, wg *sync.WaitGroup) {
+	log.Println(r.Filename)
+	s, err := getObject(r)
+	if err != nil {
+		log.Println(err)
+	} else {
+		switch r.SubPath {
+		case "Aydar":
+			os.Mkdir(path()+"Aydar/", 0755)
+			saveObject(s, path()+"Aydar/"+r.Filename)
+			log.Println("file " + r.Filename + " downlowaded (for Aydar)")
+		case "Yuliya":
+			os.Mkdir(path()+"Yuliya/", 0755)
+			saveObject(s, path()+"Yuliya/"+r.Filename)
+			log.Println("file " + r.Filename + " downlowaded (for Yuliya)")
+		default:
+			saveObject(s, path()+r.Filename)
+			log.Println("file " + r.Filename + " downlowaded")
+		}
 	}
-
+	defer wg.Done()
 }
 
 func main() {
@@ -141,18 +148,16 @@ func main() {
 		{longurl + "pronunciation%2FYuliya%2Fwords.mp3",
 			"words.mp3", "Yuliya"},
 	}
+	var wg sync.WaitGroup
 
 	// TODO rewrite as multithread func
 	for _, o := range allFiles {
 		if fileExist(path()+o.SubPath+"/"+o.Filename) == false {
-			s, err := getObject(o)
-			if err != nil {
-				log.Println(err)
-			} else {
-				go save2Path(o.SubPath, o.Filename, s)
-			}
+			wg.Add(1)
+			go save2Path(o, &wg)
 		} else {
 			log.Println("file " + o.Filename + " is exist")
 		}
+		wg.Wait()
 	}
 }
