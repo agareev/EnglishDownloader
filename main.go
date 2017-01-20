@@ -79,10 +79,10 @@ func save2Path(subpath, filename string, s []byte) {
 		os.Mkdir(path()+"Aydar/", 0755)
 		saveObject(s, path()+"Aydar/"+filename)
 		log.Println("file " + filename + " downlowaded (for Aydar)")
-	case "Yulia":
-		os.Mkdir(path()+"Yulia/", 0755)
-		saveObject(s, path()+"Yulia/"+filename)
-		log.Println("file " + filename + " downlowaded (for Yulia)")
+	case "Yuliya":
+		os.Mkdir(path()+"Yuliya/", 0755)
+		saveObject(s, path()+"Yuliya/"+filename)
+		log.Println("file " + filename + " downlowaded (for Yuliya)")
 	default:
 		saveObject(s, path()+filename)
 		log.Println("file " + filename + " downlowaded")
@@ -126,25 +126,25 @@ func main() {
 		{longurl + "pronunciation%2FAydar%2Fwords.mp3",
 			"words.mp3", "Aydar"},
 		//===========================
-		{longurl + "pronunciation%2FYulia%2Fconfusable.pdf",
-			"confusable.pdf", "Yulia"},
-		{longurl + "pronunciation%2FYulia%2Ffollow-and-click.html",
-			"follow-and-click.html", "Yulia"},
-		{longurl + "pronunciation%2FYulia%2Fn-back.mp3",
-			"n-back.mp3", "Yulia"},
-		{longurl + "pronunciation%2FYulia%2Fpractice-and-check.html",
-			"practice-and-check.html", "Yulia"},
-		{longurl + "pronunciation%2FYulia%2Fpronunciation.pdf",
-			"pronunciation.pdf", "Yulia"},
-		{longurl + "pronunciation%2FYulia%2Fsounds.mp3",
-			"sounds.mp3", "Yulia"},
-		{longurl + "pronunciation%2FYulia%2Fwords.mp3",
-			"words.mp3", "Yulia"},
+		{longurl + "pronunciation%2FYuliya%2Fconfusable.pdf",
+			"confusable.pdf", "Yuliya"},
+		{longurl + "pronunciation%2FYuliya%2Ffollow-and-click.html",
+			"follow-and-click.html", "Yuliya"},
+		{longurl + "pronunciation%2FYuliya%2Fn-back.mp3",
+			"n-back.mp3", "Yuliya"},
+		{longurl + "pronunciation%2FYuliya%2Fpractice-and-check.html",
+			"practice-and-check.html", "Yuliya"},
+		{longurl + "pronunciation%2FYuliya%2Fpronunciation.pdf",
+			"pronunciation.pdf", "Yuliya"},
+		{longurl + "pronunciation%2FYuliya%2Fsounds.mp3",
+			"sounds.mp3", "Yuliya"},
+		{longurl + "pronunciation%2FYuliya%2Fwords.mp3",
+			"words.mp3", "Yuliya"},
 	}
 
 	// TODO rewrite as multithread func
 	for _, o := range allFiles {
-		if fileExist(path()+o.Filename) == false {
+		if fileExist(path()+o.SubPath+"/"+o.Filename) == false {
 			s, err := getObject(o)
 			if err != nil {
 				log.Println(err)
