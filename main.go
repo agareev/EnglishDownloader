@@ -74,26 +74,39 @@ func fileExist(path string) bool {
 	return true
 }
 
+func hashreturn(file []byte) string {
+	return "xxxx"
+}
+
+func checknew(s []byte, r requestFile) bool {
+	if hashreturn(s) == hashreturn(s) {
+		return true
+	}
+	return false
+}
+
 func save2Path(r requestFile, wg *sync.WaitGroup) {
 	s, err := getObject(r)
-	if err != nil {
-		log.Println(err)
-	} else {
-		switch r.SubPath {
-		case "Aydar":
-			os.Mkdir(path()+"Aydar/", 0755)
-			saveObject(s, path()+"Aydar/"+r.Filename)
-			log.Println("file " + r.Filename + " downlowaded (for Aydar)")
-		case "Yuliya":
-			os.Mkdir(path()+"Yuliya/", 0755)
-			saveObject(s, path()+"Yuliya/"+r.Filename)
-			log.Println("file " + r.Filename + " downlowaded (for Yuliya)")
-		default:
-			saveObject(s, path()+r.Filename)
-			log.Println("file " + r.Filename + " downlowaded")
+	if checknew(s, r) == true {
+		if err != nil {
+			log.Println(err)
+		} else {
+			switch r.SubPath {
+			case "Aydar":
+				os.Mkdir(path()+"Aydar/", 0755)
+				saveObject(s, path()+"Aydar/"+r.Filename)
+				log.Println("file " + r.Filename + " downlowaded (for Aydar)")
+			case "Yuliya":
+				os.Mkdir(path()+"Yuliya/", 0755)
+				saveObject(s, path()+"Yuliya/"+r.Filename)
+				log.Println("file " + r.Filename + " downlowaded (for Yuliya)")
+			default:
+				saveObject(s, path()+r.Filename)
+				log.Println("file " + r.Filename + " downlowaded")
+			}
 		}
+		defer wg.Done()
 	}
-	defer wg.Done()
 }
 
 func main() {
