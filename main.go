@@ -1,11 +1,7 @@
 package main
 
 import (
-	"encoding/json"
-	"errors"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"sync"
 	"time"
@@ -23,41 +19,6 @@ type responseFile struct {
 	Templated string `json:"templated"`
 }
 
-// GetAllContents getting json from remote server
-func getAllContents(URL string) []byte {
-	response, err := http.Get(URL)
-	if err != nil {
-		log.Printf("%s", err)
-		os.Exit(1)
-	} else {
-		defer response.Body.Close()
-	}
-	contents, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Printf("%s", err)
-		os.Exit(1)
-	}
-	return contents
-}
-
-func getObject(r requestFile) ([]byte, error) {
-	response := getAllContents(r.URL)
-	var secondResponse responseFile
-	json.Unmarshal(response, &secondResponse)
-	if secondResponse.Href == "" {
-		return response, errors.New(r.Filename + " file is not found")
-	}
-	f := getAllContents(secondResponse.Href)
-	return f, nil
-}
-
-func saveObject(b []byte, f string) {
-	err := ioutil.WriteFile(f, b, 0644)
-	if err != nil {
-		log.Println(err)
-	}
-}
-
 func path() string {
 	t := time.Now()
 	path := "files/" + t.Format("2006-01-02") + "/"
@@ -67,30 +28,12 @@ func path() string {
 	return path
 }
 
-func fileExist(path string) bool {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return false
-	}
-	return true
-}
-
-func hashreturn(file []byte) string {
-	return "xxxx"
-}
-
-func checknew(s []byte, r requestFile) bool {
-	if hashreturn(s) == hashreturn(s) {
-		return true
-	}
-	return false
-}
-
 func save2Path(r requestFile, wg *sync.WaitGroup) {
 	s, err := getObject(r)
-	if checknew(s, r) == true {
-		if err != nil {
-			log.Println(err)
-		} else {
+	if err != nil {
+		log.Println(err)
+	} else {
+		if checkExist(s, r) == true {
 			switch r.SubPath {
 			case "Aydar":
 				os.Mkdir(path()+"Aydar/", 0755)
@@ -130,6 +73,7 @@ func main() {
 			"words.mp3", ""},
 		{longurl + "exercises.jpg",
 			"exercises.jpg", ""},
+		//===========================
 		{longurl + "pronunciation%2FAydar%2Fconfusable.pdf",
 			"confusable.pdf", "Aydar"},
 		{longurl + "pronunciation%2FAydar%2Ffollow-and-click.html",
@@ -164,12 +108,8 @@ func main() {
 
 	// TODO rewrite as multithread func
 	for _, o := range allFiles {
-		if fileExist(path()+o.SubPath+"/"+o.Filename) == false {
-			wg.Add(1)
-			go save2Path(o, &wg)
-		} else {
-			log.Println("file " + o.Filename + " is exist")
-		}
+		wg.Add(1)
+		go save2Path(o, &wg)
 		wg.Wait()
 	}
 }
