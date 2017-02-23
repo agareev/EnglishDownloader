@@ -30,7 +30,7 @@ func path() string {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		os.Mkdir(path, 0755)
 		t = t.Add(-24 * time.Hour)
-		go moveIT("files/"+t.Format("2006-01-02"), "files/0ld/"+t.Format("2006-01-02"))
+		moveIT("files/"+t.Format("2006-01-02"), "files/0ld/"+t.Format("2006-01-02"))
 	}
 	return path
 }
