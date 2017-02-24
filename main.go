@@ -19,13 +19,18 @@ type responseFile struct {
 	Templated string `json:"templated"`
 }
 
+func moveIT(from, to string) error {
+	err := os.Rename(from, to)
+	return err
+}
+
 func path() string {
 	t := time.Now()
 	path := "files/" + t.Format("2006-01-02") + "/"
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		os.Mkdir(path, 0755)
-		t.AddDate(0, 0, -1)
-		go os.Rename("files/"+t.Format("2006-01-02"), "files/0ld/"+t.Format("2006-01-02"))
+		t = t.Add(-24 * time.Hour)
+		go moveIT("files/"+t.Format("2006-01-02"), "files/0ld/"+t.Format("2006-01-02"))
 	}
 	return path
 }
